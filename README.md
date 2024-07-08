@@ -126,3 +126,333 @@ public class HappyIsland {
 }
 
 ```
+
+---
+# 로마 해독 
+
+### 사고 과정
+
+**1. 문제 이해**
+
+로마 숫자의 규칙과 이를 정수로 변환하는 방법을 이해해야 한다.
+
+- 로마 숫자에서는 큰 기호가 작은 기호의 왼쪽에 위치하면 더하기로 계산하고, 작은 기호가 큰 기호의 왼쪽에 위치하면 빼기로 계산한다.
+    - ex) II는 2, XII는 12, IV는 4, IX는 9로 표현
+- 추가 조건에서는  "IIX"나 "VX"와 같은 정형화된 규칙을 위반하는 표기는 잘못된 것으로 간주한다고 한다.
+    - 정형화된 규칙을 따르는 로마 숫자 표기법을 따로 찾아보았다.
+        - **감산 규칙**:
+            - 감산 규칙은 특정 조합에만 적용됩니다.
+            - I는 V(5)와 X(10) 앞에 올 수 있습니다. 예: IV(4), IX(9)
+            - X는 L(50)과 C(100) 앞에 올 수 있습니다. 예: XL(40), XC(90)
+            - C는 D(500)와 M(1000) 앞에 올 수 있습니다. 예: CD(400), CM(900)
+            - 이 외의 경우에는 작은 숫자가 큰 숫자 앞에 올 수 없습니다. 예: IL, IC, ID, IM, VX, LC 등은 잘못된 표기입니다.
+        - **반복 규칙**:
+            - I, X, C, M은 각각 최대 3번까지 반복될 수 있습니다. 예: III(3), XXX(30), CCC(300), MMM(3000)
+            - V, L, D는 반복될 수 없습니다. 예: VV, LL, DD는 잘못된 표기입니다.
+
+### 로직 설계
+
+1. **문자열 검증**: 입력 문자열이 위의 규칙에 따라 로마 숫자 표기법을 따르는지 확인한다.
+2. **해독 알고리즘**: 각 문자를 순차적으로 탐색하여 로마 숫자를 정수로 변환한다.
+3. **범위 확인**: 변환된 정수 값이 3999를 초과하는지 확인한다.
+
+### 세부 설계
+
+1. **문자열 검증**:
+    - 정규 표현식을 사용하여 로마 숫자 표기법을 따르는지 확인한다.
+    - 잘못된 표기인 경우 오류 메시지를 출력
+2. **로마 숫자 해독**:
+    - 문자열을 순차적으로 탐색하여 현재 문자의 값이 다음 문자의 값보다 작으면 빼고, 그렇지 않으면 더한다.
+3. 3999 값 초과 여부 검증:
+    - 계산한 결과 값을 확인한다.
+    - 3999를 초과할 경우 오류 메세지를 출력
+
+### 로직 예시
+
+1) 올바른 로마 규칙 + 3999 값  이하 : 올바른 정수 값 출력
+2) 올바른 로마 규칙 + 3999 값 초과 : “표현할 수 없는 범위의 수입니다” 출력
+3) 잘못된 로마 규칙 + 3999 값 이하 : “잘못된 로마 숫자 표기입니다” 출력
+4) 잘못된 로마 규칙 + 3999 값 초과 : “잘못된 로마 숫자 표기입니다” 출력
+
+### 디버깅
+
+초기 접근 방식
+
+정형화된 로마 숫자 표기법에 대한 규칙을 확인하는 코드를 작성해야 하는데, 문제의 조건만 보고는 어떠한 규칙을 통해 로마 숫자 표기법에 위반되는지 알 수 없었다. 이에 따라 인터넷에서 올바른 로마 숫자 표기법을 검증하는 방법을 찾아 나의 코드에 적용시켰다.
+
+```java
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class RomanToInteger {
+    private static final Map<Character, Integer> romanMap = new HashMap<>();
+
+    static {
+        romanMap.put('I', 1);
+        romanMap.put('V', 5);
+        romanMap.put('X', 10);
+        romanMap.put('L', 50);
+        romanMap.put('C', 100);
+        romanMap.put('D', 500);
+        romanMap.put('M', 1000);
+    }
+
+    // 로마 숫자 표기법을 검증하는 메서드
+    private static boolean isValidRoman(String s) {
+        return s.matches("^(M{0,3})(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$");
+    }
+}
+```
+
+하지만 위와 같이 작성하고 나니 문제를 제대로 이해할 수 없는 문제가 발생하여,  실제로 정형화된 로마 숫자 표기법에 대한 규칙들에 대해 찾아보고 그 규칙들을 코드로 직접 구현해보면서 이해가 안되는 문제를 해결할 수 있었다.
+
+- I, X, C, M은 각각 최대 3번까지 반복될 수 있다.
+- I는 V(5)와 X(10) 앞에 올 수 있다. 예: IV(4), IX(9)
+    - I는 두 번 반복 후 V나 X 앞에 올 수 없음
+- X는 L(50)과 C(100) 앞에 올 수 있다. 예: XL(40), XC(90)
+    - X는 두 번 반복 후 L이나 C 앞에 올 수 없음
+- C는 D(500)와 M(1000) 앞에 올 수 있다. 예: CD(400), CM(900)
+    - C는 두 번 반복 후 D나 M 앞에 올 수 없음
+- 그 외에는 잘못된 표기이다.
+
+```java
+   // 잘못된 로마 숫자 표기를 검증하는 메서드
+    private static boolean isValidRoman(String s) {
+        // 반복 횟수를 확인하기 위한 맵
+        Map<Character, Integer> repetitionMap = new HashMap<>();
+        repetitionMap.put('I', 0);
+        repetitionMap.put('X', 0);
+        repetitionMap.put('C', 0);
+        repetitionMap.put('M', 0);
+
+        for (int i = 0; i < s.length(); i++) {
+            char current = s.charAt(i);
+            if (!romanMap.containsKey(current)) {
+                return false; // 유효하지 않은 문자
+            }
+
+            // 반복 횟수 체크
+            if (current == 'I' || current == 'X' || current == 'C' || current == 'M') {
+                repetitionMap.put(current, repetitionMap.get(current) + 1);
+                if (repetitionMap.get(current) > 3) {
+                    return false; // I, X, C, M은 3번 이상 반복 불가
+                }
+            } else {
+                repetitionMap.put('I', 0);
+                repetitionMap.put('X', 0);
+                repetitionMap.put('C', 0);
+                repetitionMap.put('M', 0);
+            }
+
+            if (i > 0) {
+                char previous = s.charAt(i - 1);
+                if (romanMap.get(previous) < romanMap.get(current)) {
+                    // 예외 상황 처리
+                    if (previous == 'I' && (current == 'V' || current == 'X')) {
+                        if (i > 1 && s.charAt(i - 2) == 'I') {
+                            return false; // I는 두 번 반복 후 V나 X 앞에 올 수 없음
+                        }
+                        continue;
+                    } else if (previous == 'X' && (current == 'L' || current == 'C')) {
+                        if (i > 1 && s.charAt(i - 2) == 'X') {
+                            return false; // X는 두 번 반복 후 L이나 C 앞에 올 수 없음
+                        }
+                        continue;
+                    } else if (previous == 'C' && (current == 'D' || current == 'M')) {
+                        if (i > 1 && s.charAt(i - 2) == 'C') {
+                            return false; // C는 두 번 반복 후 D나 M 앞에 올 수 없음
+                        }
+                        continue;
+                    } else {
+                        return false; // 잘못된 표기
+                    }
+                }
+            }
+        }
+        return true;
+    }
+```
+
+두 번째로, 코드를 작성하고 테스트 케이스를 돌리는 부분에서 문제가 발생했다. 
+
+문제의 조건대로라면 “MMMM”에 대한 케이스는 4000의 값을 내어주고, 그 값이 3999보다 높은 값이기 때문에 “표현할 수 없는 범위의 수입니다.” 의 출력을 기대했지만, 실제 출력 값은 "잘못된 로마 숫자 표기입니다.”가 출력되는 문제가 발생했다.
+
+```java
+
+    // 테스트 함수
+    public static void testRomanToInt(String s) {
+        romanToInt(s);
+    }
+
+    public static void main(String[] args) {
+        testRomanToInt("II"); // 정상적인 로마 숫자
+        testRomanToInt("XII"); // 정상적인 로마 숫자
+        testRomanToInt("IV"); // 정상적인 로마 숫자
+        testRomanToInt("IX"); // 정상적인 로마 숫자
+        testRomanToInt("MMMM"); // 3999 범위를 초과하는 경우
+        testRomanToInt("IIX"); // 잘못된 로마 숫자 표기
+    }
+}
+
+**출력 값**
+로마 숫자: II -> 정수: 2
+로마 숫자: XII -> 정수: 12
+로마 숫자: IV -> 정수: 4
+로마 숫자: IX -> 정수: 9
+**잘못된 로마 숫자 표기입니다.**
+잘못된 로마 숫자 표기입니다.
+```
+
+위의 문제에 대해서 한참 찾아본 결과, 정형화된 로마 숫자 표기법에 대해서는 “ I, X, C, M은 각각 최대 3번까지 반복될 수 있다” 라는 규칙이 있었고, 이에 따라 M이 4번 사용되었기 때문에 애초에 “잘못된 로마 숫자 표기”가 출력되고 있었던 것. 
+
+관점에 따라 다르겠지만 애초에 문자열 입력 시에 잘못된 로마 표기법을 입력했다면, 입력 문자열에 대해서 정수 변환할 필요도 없다고 생각해서 위와 같이 문자열 입력 후 isValidRoman메서드를 통해 잘못된 로마 표기가 확인되면 “ 잘못된 로마 숫자 표기”가 출력되도록 하는 것이 맞다고 생각하여 위의 코드를 그대로 사용하여 해결하였다.
+
+### 최종 코드
+
+```java
+package org.example;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class RomanDecoder {
+
+    // 로마 숫자 문자와 그 값을 매핑할 수 있는 HashMap 생성
+    private static final Map<Character, Integer> romanMap = new HashMap<>();
+
+    static {
+        romanMap.put('I', 1);
+        romanMap.put('V', 5);
+        romanMap.put('X', 10);
+        romanMap.put('L', 50);
+        romanMap.put('C', 100);
+        romanMap.put('D', 500);
+        romanMap.put('M', 1000);
+    }
+
+    // 잘못된 로마 숫자 표기를 검증하는 메서드
+    private static boolean isValidRoman(String s) {
+        // 반복 횟수를 확인하기 위한 맵
+        Map<Character, Integer> repetitionMap = new HashMap<>();
+        repetitionMap.put('I', 0);
+        repetitionMap.put('X', 0);
+        repetitionMap.put('C', 0);
+        repetitionMap.put('M', 0);
+
+        for (int i = 0; i < s.length(); i++) {
+            char current = s.charAt(i);
+            if (!romanMap.containsKey(current)) {
+                return false; // 유효하지 않은 문자
+            }
+
+            // 반복 횟수 체크
+            if (current == 'I' || current == 'X' || current == 'C' || current == 'M') {
+                repetitionMap.put(current, repetitionMap.get(current) + 1);
+                if (repetitionMap.get(current) > 3) {
+                    return false; // I, X, C, M은 3번 이상 반복 불가
+                }
+            } else {
+                repetitionMap.put('I', 0);
+                repetitionMap.put('X', 0);
+                repetitionMap.put('C', 0);
+                repetitionMap.put('M', 0);
+            }
+
+            if (i > 0) {
+                char previous = s.charAt(i - 1);
+                if (romanMap.get(previous) < romanMap.get(current)) {
+                    // 예외 상황 처리
+                    if (previous == 'I' && (current == 'V' || current == 'X')) {
+                        if (i > 1 && s.charAt(i - 2) == 'I') {
+                            return false; // I는 두 번 반복 후 V나 X 앞에 올 수 없음
+                        }
+                        continue;
+                    } else if (previous == 'X' && (current == 'L' || current == 'C')) {
+                        if (i > 1 && s.charAt(i - 2) == 'X') {
+                            return false; // X는 두 번 반복 후 L이나 C 앞에 올 수 없음
+                        }
+                        continue;
+                    } else if (previous == 'C' && (current == 'D' || current == 'M')) {
+                        if (i > 1 && s.charAt(i - 2) == 'C') {
+                            return false; // C는 두 번 반복 후 D나 M 앞에 올 수 없음
+                        }
+                        continue;
+                    } else {
+                        return false; // 잘못된 표기
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /*
+    - 문자열을 순회하면서 각 문자의 값을 읽어 들인다.
+    - 현재 문자의 값이 다음 문자보다 크거나 같으면 값을 더하고, 작으면 값을 뺀다.
+    - 변환된 값이 3999를 초과하면 에러 메시지를 출력한다.
+    - 입력된 로마 숫자 문자열이 잘못된 형식을 가지면 에러 메시지를 출력한다.
+     */
+
+    // 로마 숫자를 정수로 변환하는 메서드
+    public static void romanToInt(String s) {
+
+        if (!isValidRoman(s)) {
+            System.out.println("잘못된 로마 숫자 표기입니다.");
+            return;
+        }
+
+        int sum = 0;
+        int length = s.length();
+
+        for (int i = 0; i < length; i++) {
+            int currentVal = romanMap.get(s.charAt(i));
+
+            if (i + 1 < length) {
+                int nextVal = romanMap.get(s.charAt(i + 1));
+                if (currentVal < nextVal) {
+                    sum -= currentVal;
+                } else {
+                    sum += currentVal;
+                }
+            } else {
+                sum += currentVal;
+            }
+        }
+
+        if (sum > 3999) {
+            System.out.println("표현할 수 없는 범위의 수입니다.");
+            return;
+        }
+
+        System.out.println("로마 숫자: " + s + " -> 정수: " + sum);
+    }
+
+    // 테스트 함수
+    public static void testRomanToInt(String s) {
+        romanToInt(s);
+    }
+
+    public static void main(String[] args) {
+        // 올바른 로마 숫자 표기 + 3999 이하 -> 기대 값 : 정수 값 
+        testRomanToInt("II"); 
+        testRomanToInt("XII"); 
+        testRomanToInt("IV"); 
+        testRomanToInt("IX"); 
+        testRomanToInt("MMMDCCCLXXXVIII"); // 정상적인 로마 숫자 (3888)
+
+        // 올바른 로마 숫자 표기 + 3999 초과
+        // 정형화된 로마 숫자 표기법에는 이러한 케이스가 존재하지 않음
+
+        // 잘못된 로마 숫자 표기 + 3999 이하 -> 기대 값 : "잘못된 로마 숫자 표기"
+        testRomanToInt("IIX"); 
+        testRomanToInt("VX"); 
+
+        // 잘못된 로마 숫자 표기 + 3999 초과 -> 기대 값 : "잘못된 로마 숫자 표기"
+        testRomanToInt("MMMM"); 
+        testRomanToInt("MMMMCMXC"); // 4990, 범위를 초과하는 경우    
+        }
+    }
+}
+
+```
