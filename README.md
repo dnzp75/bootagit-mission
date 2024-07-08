@@ -25,7 +25,7 @@ n의 범위가 최대 10^6인 점과 실행 시간이 1초(약 10^8)인 조건�
     - 만약, 계산된 중간 결과가 이전에 나온 적이 있으면 사이클이 발생한 것으로 보고 "행복한 수"가 아니라고 판별하여 0을 리턴한다.
 
 <p align="center">
- <img src="https://github.com/dnzp75/bootagit-mission/assets/105201451/4b5bec1c-6615-455b-ac57-bf1ded9bd4db.png" width="300" height="400"/>
+ <img src="https://github.com/dnzp75/bootagit-mission/assets/105201451/4b5bec1c-6615-455b-ac57-bf1ded9bd4db.png" width="400" height="400"/>
 </p>
 
 ### 디버깅 과정
