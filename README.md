@@ -66,7 +66,6 @@ private static int sumOfSquares(int n) {
 ### 최종 코드
 
 ```java
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -98,11 +97,29 @@ public class HappyIsland {
         }
     }
 
-    // 메인 함수
-    public static void main(String[] args) {
-        int n = 19;  // 예시로 19를 사용
-        System.out.println(isHappyNumber(n));
+    // 테스트 함수
+    public static void testIsHappyNumber(int n) {
+        System.out.println("n = " + n + ", 결과: " + isHappyNumber(n));
     }
 
+    // 메인 함수
+    public static void main(String[] args) {
+        int n1 = 19;
+        testIsHappyNumber(n1);
+
+        // n의 최대값 1,000,000을 사용하여 테스트
+        int n2 = 1000000;
+        testIsHappyNumber(n2);
+
+        // 사이클 발생으로 인해 0을 리턴하는 경우 테스트
+        int n3 = 4;
+        testIsHappyNumber(n3);
+
+        // 최종 결과가 0으로 나오는 경우 테스트
+        // 행복하지 않은 수 테스트
+        int n4 = 2; 
+        testIsHappyNumber(n4);
+    }
 }
+
 ```
