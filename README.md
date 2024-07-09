@@ -456,3 +456,116 @@ public class RomanDecoder {
 }
 
 ```
+
+---
+# 외계어 사전 만들기
+
+### 문제 요구사항 분석
+
+1. 문자열에서 중복된 문자를 제거해야 한다.
+2. 중복 제거 후 남은 문자들 중 사전순으로 가장 앞서는 문자를 찾아야 한다.
+3. 그 문자가 원래 문자열에서 처음 등장하는 위치를 출력해야 한다.
+4. 중복 제거 후 남은 문자가 없다면 "중복 제거 후 빈 문자열이 되었습니다."를 출력해야 한다.
+
+## 설계
+
+### 알고리즘 및 자료구조
+
+1. 입력 문자열을 왼쪽에서 오른쪽으로 차례로 읽으면서 각 문자가 처음 등장하는지 확인한다.
+2. 처음 등장하는 문자는 남기고, 이미 등장한 문자는 제거한다.
+    1.  이를 위해 `LinkedHashSet`을 사용하여 입력 문자열에서 중복된 문자를 제거하고 순서를 유지한다.
+3. `LinkedHashSet`을 리스트로 변환한 후, 정렬하여 사전순으로 가장 앞서는 문자를 찾는다.
+4. 해당 문자가 원래 문자열에서 처음 등장하는 위치를 찾아서 결과를 출력한다.
+
+### 코드 흐름도
+
+입력 문자열 -> 중복 제거 -> 리스트 변환 및 정렬 -> 사전순 첫 문자 찾기 -> 위치 확인 -> 결과 출력
+
+### 최종 코드
+
+```java
+
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+
+public class AlienDictionary {
+    public static void processInput(String input) {
+        System.out.println("입력: " + input);
+
+        if (input.isEmpty()) {
+            System.out.println("중복 제거 후 빈 문자열이 되었습니다.");
+            return;
+        }
+
+        // LinkedHashSet을 사용하여 입력 문자열에서 중복된 문자를 제거하고 순서를 유지
+        Set<Character> uniqueCharsSet = new LinkedHashSet<>();
+        for (char c : input.toCharArray()) {
+            uniqueCharsSet.add(c);
+        }
+
+        // Set을 List로 변환하여 정렬
+        List<Character> uniqueCharsList = new ArrayList<>(uniqueCharsSet);
+        Collections.sort(uniqueCharsList);
+
+        if (uniqueCharsList.isEmpty()) {
+            System.out.println("중복 제거 후 빈 문자열이 되었습니다.");
+        } else {
+            // 사전순으로 가장 앞서는 문자 찾기
+            char firstChar = uniqueCharsList.get(0);
+
+            // 해당 문자가 원래 문자열에서 처음 등장하는 위치 찾기
+            int firstIndex = input.indexOf(firstChar);
+
+            System.out.println("결과: " + firstChar + " (인덱스: " + firstIndex + ")");
+        }
+        System.out.println(); // 결과 간 공백 추가
+    }
+
+    public static void main(String[] args) {
+        // 테스트할 입력 값 배열
+        String[] testInputs = {
+            "cbacabcde",
+            "abcabc",
+            "zxyab",
+            "",
+            "a",
+            "bb",
+            "abcdefghijklmnopqrstuvwxyz",
+            "thequickbrownfoxjumpsoverthelazydog"
+        };
+
+        // 각 입력 값에 대해 결과 출력
+        for (String input : testInputs) {
+            processInput(input);
+        }
+    }
+}
+
+실행 결과 
+입력: cbacabcde
+결과: a (인덱스: 2)
+
+입력: abcabc
+결과: a (인덱스: 0)
+
+입력: zxyab
+결과: a (인덱스: 3)
+
+입력: 
+중복 제거 후 빈 문자열이 되었습니다.
+
+입력: a
+결과: a (인덱스: 0)
+
+입력: bb
+결과: b (인덱스: 0)
+
+입력: abcdefghijklmnopqrstuvwxyz
+결과: a (인덱스: 0)
+
+입력: thequickbrownfoxjumpsoverthelazydog
+결과: a (인덱스: 29)
+```
